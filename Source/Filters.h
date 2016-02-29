@@ -10,24 +10,19 @@
 #include <algorithm>
 #include <vector>
 
-struct Filter {
-	float out = 0;
-	virtual void input(float) noexcept = 0;
-};
-
 // - - - - - - - - - - - - - - - - - - - - - 
 // filterA -- 2pt MOVING AVERAGE weighted by S, decay rho
 //      y[n] = rho { S x[n] + (1-S) x[n-1] }        (Eqs. 18 & 20)
 //
-class WeightedAv : public Filter {
-	float S, oneMinusS, rho, A, B;
-	float x_prev = 0;
+class WeightedAv {
+	float S, oneMinusS, rho, A, B, x_prev = 0;
 public:
+	float out = 0;
 	WeightedAv(float _S, float _rho) : S(_S), oneMinusS(1-_S), rho(_rho) {
 		A = rho * S;
 		B = rho * oneMinusS;
 	}
-	void input(float x) noexcept final {
+	void input(float x) noexcept {
 		out = A*x + B*x_prev;
 		x_prev = x;
 	}
@@ -37,17 +32,18 @@ public:
 // filterB -- N-step DELAY 
 //      y[n] = x[n-N]
 //
-class Delay : public Filter {
+class Delay {
 	float* buf;
 	int ptr = 0, N;
 public:
+	float out = 0;
 	Delay(int _N) : N(_N) {
 		buf = (float*)calloc(N,sizeof(float));
 	}
 	~Delay() {
 		free(buf);
 	}
-	void input(float x) noexcept final {
+	void input(float x) noexcept {
 		out = buf[ptr];
 		buf[ptr] = x;
 		ptr = (ptr + 1) % N;
@@ -58,12 +54,13 @@ public:
 // filterC --  Fractional-delay TUNING filter (Eq.12) 
 //      y[n] = C x[n] + x[n-1] - C y[n-1]
 //
-class FracDelay : public Filter {
+class FracDelay {
 	float C, x_prev = 0, y_prev = 0;
 public:
-	FracDelay(float _C) : C(_C) 
+	float out = 0;
+	FracDelay(float _C) : C(_C)
 	{ }
-	void input(float x) noexcept final {
+	void input(float x) noexcept {
 		out = C*x + x_prev - C*y_prev;
 		x_prev = x;
 		y_prev = out;
@@ -74,12 +71,13 @@ public:
 // filter D -- balance fundamental amp over spectrum
 //      y[n] = (1-R) x[n] + R y[n-1]
 //
-class BalanceFundAmp : public Filter {
+class BalanceFundAmp {
 	float R, oneMinusR, y_prev = 0;
 public:
+	float out = 0;
 	BalanceFundAmp(float _R) : R(_R), oneMinusR(1-_R)
 	{ }
-	void input(float x) noexcept final {
+	void input(float x) noexcept {
 		out = oneMinusR*x + R*y_prev;
 		y_prev = out;
 	}
