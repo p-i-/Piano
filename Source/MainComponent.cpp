@@ -33,15 +33,6 @@ public:
 		keyboardComponent.setAvailableRange(21, 108);
 	}
 
-	~MainContentComponent()
-	{
-		//synthPlayer.setSource(nullptr);
-		//inputDeviceManager.removeMidiInputCallback(String::empty, &(synthAudioSource.midiCollector));
-		//inputDeviceManager.removeAudioCallback(&synthPlayer);
-
-		//shutdownAudio();
-	}
-
 	void paint(Graphics& g) override
 	{
 		g.fillAll(Colours::black);
