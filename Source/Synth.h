@@ -73,7 +73,7 @@ private:
 	Synthesiser synth;
 	MidiMessageCollector midiCollector;
 
-	SynthPlayer audioSourcePlayer;
+	AudioSourcePlayer audioSourcePlayer;
 
 public:
 	PiSynthPlayer(MidiKeyboardState& _state, AudioDeviceManager& _in, AudioDeviceManager& _out)
